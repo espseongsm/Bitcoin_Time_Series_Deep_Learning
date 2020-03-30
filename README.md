@@ -77,10 +77,17 @@ as the batch size. Code is [here](https://drive.google.com/file/d/1QkNT0VjL8Vz8s
 ## Performance Comparison
 
 In order to tune the number of epochs and lambda, 5-fold cross validation 
-is applied. Cross-validation is iterated 30 times. Fitting those models on 
-train and test data is iterated 100 times. When fitting the model, 
-the optimal number of epochs and optimal lambda are computed in two ways, 
-taking average and the least mean absolute error. Code is [here](https://drive.google.com/file/d/1WQr3JUjuuYicD-e8n3_hTxOBoKHQKHfY/view?usp=sharing).
+is applied. Cross-validation is iterated 30 times. So, the below boxplots of 
+cross-validation is made of 30 iterations. After tuning the number of epochs and 
+lambda from cross-validating 30 times, the neural nets, lasso and ridge regression
+are fitted on train and test data 100 times. That is, performance boxplots of 
+train and test data are made of 100 iterations. 
+
+When the model is fitted, the optimal number of epochs and optimal lambda are computed 
+in two ways, taking average and the least mean absolute error. 
+The two ways are compared with respect to the performance of models. 
+Code is [here](https://drive.google.com/file/d/1WQr3JUjuuYicD-e8n3_hTxOBoKHQKHfY/view?usp=sharing).
+
 1. Average of the number of epochs and lambda
 
    ![Performance Comparison at Average](2.jpeg)
