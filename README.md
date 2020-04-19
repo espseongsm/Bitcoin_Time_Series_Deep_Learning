@@ -10,125 +10,108 @@ The size of this data is 2011 from September 17th, 2014 to March 19th, 2020.
 
 ## Bitcoin Price Time-Series dataset
 
-The time-series dataset that we will use is made of the bitcoin data at opening. 
-Time-series data generator is [here](https://drive.google.com/file/d/1BBCtDl6BCtFQOdTKOBwFx-oey8xl8l_R/view?usp=sharing).
+The time-series dataset that we will use is made of the bitcoin data at opening. The size of this time-series dataset is  1,980 with 31 variables including one response. This means that one observation has a certain day's bitcoin price as a response and past 30 days' bitcoin price as predictors.
 
-The size of this time-series dataset is 1,000 with 65 variables. 
-This means that one observation has a certain day's bitcoin price as a response 
-and past 64 days' bitcoin price as predictors.
-The data size is randomly selected. 
-
-80 percentage of the data size is assigned to train data and rest of it is assigned 
-to test data.
+80 percentage of the data size is assigned to train data and rest of it is assigned to test data.
 
 ## Models
 
-Feed forward neural nets, LASSO regression, and Ridge regression are compared 
-in terms of predictive performances, mean absolute error on test data. 
-The mean absolute error is  the average of absolute values of difference 
-between bitcoin prices and predicted bitcoin prices.
+Feed forward Deep Learning, LASSO regression, Ridge regression, and Elastic net regression are compared in terms of predictive performances, mean absolute error on test data. The mean absolute error is the average of absolute values of difference between bitcoin prices(y) and predicted bitcoin prices(y_hat).
 
-In order to save time and prevent the neural nets from being overfitted, 
-early stopping is applied with patience = 5. patience = 5 means it will stop 
-fitting the neural nets without improvement of performance in 5 epochs. 
-Just for the record, early stopping saves a lot of time and performance on test data.
+## Preventing Deep Learning From Overfitting
 
-## Architectures of Neural nets, LASSO, and Ridge
+In order to save time and prevent the Deep Learning(DL) from being overfitted, there are five common ways to go: larger data size, small capacity, dropout, regularization, and early stopping. These five methods prevent overfitting and improve fest performance. Below intuitive explanation comes from \href{https://keras.rstudio.com/articles/tutorial_overfit_underfit.html}{Keras Tutorial: Overfitting and Underfitting} and Deep Learning by Yoshua Bengio.
 
-### Feed forward neural nets
+### Increasing the data size
+    
+It's not easy to increase the data size in real-life situations. However, fake observations can increase the data size and improve the performance of models. For example, suppose we build a model that classifies hand-written digits from zero to nine. Fake observations can be made by transforming some observations in the data such as tilted images of number three.
+    
+### Small capacity
+    
+In general, as the number of nodes in a layer decreases, the layer tends not to be overfitted.
 
-1. Layer - It have four layers. These are composed of one input layer, two hidden layers, one output layer as below. The output layer has no activation for regression analysis.
+### Dropout
+    
+Dropout is a simple and powerful tool that prevents overfitting when DL has wides layers, each of which has a lot of nodes, because it randomly drops some nodes when it's trained. The dropout rate of 0.2 to 0.5 is recommended.
+    
+[This paper](https://uksim.info/isms2016/CD/data/0665a174.pdf) explains the relationship between dropout and L2 regularization. Simply, dropout performs better with wider layers than L2 regularization does. When dropout is applied to this DL model, the performance gets worse.
+    
+### Regularization
+    
+DL has three regularization methods such as L1, L2, and elastic net. Each has $l$ that controls the magnitude of regularization as same as statistical machine learning literature. However, the difference is that DL can regularize weight, bias, and output of layers.
 
+y = Wx + b
+#### Kernel regularizer - reducing W.
+
+#### Bias regularizer - reducing b.
+
+#### Activity regularizer - reducing y, implying that this regularizer decreases both W and b.
+        
+### Early stopping
+    
+Early stopping only controls the number of epoch to feed. Given the condition of early stopping, DL stops to feed the entire dataset if there is no improvement on accuracy such as mean absolute error. Early stopping have two main  arguments such as patience and min-delta. early stopping is applied with patience = 5. patience = 5 means it will stop fitting the neural nets without improvement of performance in 5 epochs. min-delta is the minimum improvement that is considered as no improvement. Just for the record, early stopping saves a lot of time to optimize the architecture of DL and other hyperparameters such as batch size and dropout rate.
+
+## Architectures of Deep Learning
+
+### Layer
+
+It has five layers which are composed of one input layer, three hidden layers, one output layer as below. The output layer has no activation for regression analysis. Cross-validation is used to optimize the structure of three hidden layers below.
 ```R
-        build_DL_model = function() {
-            model = keras_model_sequential() %>%
-                layer_dense(units = 64, activation = "relu",
-                    input_shape = dim(train_data)[[2]]) %>%
-                layer_dense(units = 128, activation = "relu") %>%
-                layer_dense(units = 64, activation = "relu") %>%
-                layer_dense(units = 1)
-            model %>% compile(
-                optimizer = "rmsprop",
-                loss = "mse",
-                metrics = c("mae")
-                ) 
-            }
+build_DL_model = function() {
+        model = keras_model_sequential() %>%
+                 layer_dense(units = p, activation = "relu", 
+                 input_shape = dim(X.train)[[2]]) %>%
+                  layer_dense(units = 16, activation = "relu") %>%
+                  layer_dense(units = 16, activation = "relu") %>%
+									layer_dense(units = 22, activation = "relu") %>%
+             	 layer_dense(units = 1)
+  		model %>% compile(
+    							optimizer = "rmsprop", loss = "mse", metrics = c("mae") )
+				 }
 ```
 
-2. Loss function -  mean square error
-3. Optimizer - rmsprop, one of the famous variants of stochastic gradient descent which uses different learning rates by units.
-4. Batch size - it will be decided out of 1, 2, 4, 8, 16, 32.
-5. Number of epochs - the optimal number of epochs will be decided between 0 to 500.
+![](hidden1.jpeg)
 
-### LASSO and Ridge regression
+![](hidden2.jpeg)
 
-1. Lambda - it will be decided by cross-validation
+![](hidden3.jpeg)
 
-## Experiment on Batch Size
+In order to decide the number of nodes in a hidden layer, cross-validation with 5 folds are applied layer by layer. Early stopping is used as well. For the first hidden layer, I take an experiment from 4 to 512 nodes by 4. For the second and third hidden layers, I take an experiment from 2 to 256 nodes by 2 since I don't think the large number of nodes are necessary. I try to select small capacity at each hidden layer to prevent overfitting. That is, the elbow point of Figure 1 is the choice for the number of nodes.
+        
+As DL get deeper, cross-validation mean absolute error becomes better and more stables. For example, the third hidden layer with 2 nodes has the almost same cross-validation mean absolute error as with 256 nodes. However, when I try the forth hidden layer, it becomes worse. The cross-validation mean absolute error of the fourth hidden layer tends to be higher than that of the second hidden layer. So, the fourth hidden layer is taken out.
+        
+### Activation function - rectified linear unit, one of the best activation functions as default.
 
-![Test Mean Absolute Error Rate by Batch Size](1.jpeg)
+### Loss function -  mean square error
 
-6 batch sizes are compared in terms of performance on test data. 
-Figure 1 shows box plots of the test mean absolute error by batch size. 
-There is no difference between batch sizes. Just 4 is selected 
-as the batch size. Code is [here](https://drive.google.com/file/d/1QkNT0VjL8Vz8s1lwDp56dhjdlf77-IVg/view?usp=sharing)
+### Optimizer - rmsprop, one of the famous variants of stochastic gradient descent which uses different learning rates by units.
 
-
-## Performance Comparison
-
-In order to tune the number of epochs and lambda, 5-fold cross validation 
-is applied. Cross-validation is iterated 30 times. So, the below boxplots of 
-cross-validation is made of 30 iterations. After tuning the number of epochs and 
-lambda from cross-validating 30 times, the neural nets, lasso and ridge regression
-are fitted on train and test data 100 times. That is, performance boxplots of 
-train and test data are made of 100 iterations. 
-
-When the model is fitted, the optimal number of epochs and optimal lambda are computed 
-in two ways, taking average and the least mean absolute error. 
-The two ways are compared with respect to the performance of models. 
-Code is [here](https://drive.google.com/file/d/1WQr3JUjuuYicD-e8n3_hTxOBoKHQKHfY/view?usp=sharing).
-
-1. Average of the number of epochs and lambda
-
-   ![Performance Comparison at Average](2.jpeg)
+### item Batch size - 8 
     
-    Given 30 iterations of cross-validation, the average of the number of epochs is
-   used for fitting the neural nets. Likely, the average of lambdas is also used for 
-   lasso and ridge regression respectively. The number of epochs is 17, lambda 
-   for LASSO is 2.83, and lambda for Ridge is 43.06.
+Given the condition of early stopping, 10 batch sizes(1, 2, 4, 8, 16, 32, 64, 128, 256, and 512) are compared in terms of cross-validation mean absolute error. Under the same layers in (a), there is no huge difference between batch sizes. However, the batch size $= 8$ is the best and selected as the optimal batch size. 
     
-2. The number of epochs and lambda at the least mean absolute error
-   
-   ![Performance Comparison at Least MAE](3.jpeg) 
-   
-    Out of 30 iterations, the number of epochs and lambda are chosen as optimal 
-    parameters when the mean absolute error is least. The number of epochs is 15, 
-    lambda for LASSO is 2.82, and lambda for Ridge is 41.30. Using parameters that
-    give the least mean absolute error of 30 iterated cross-validation shows 
-    more variability than using the average of parameters that give the mean absolute
-    errors.
+![](batch.jpeg)
+    
+### Number of epochs - 130
+    
+Without early stopping, 0 to 500 epochs are evaluated by 5-fold cross-validation. Around 125 seems to be the optimal number of epochs. I evaluate from 100 to 150 in a detailed manner. Then, 130 is the optimal number of epochs to feed.
+![](epoch.jpeg)
 
-3. Time
-   
-   ![Time Comparison](4.jpeg) 
-   
-    The neural nets take much more time than LASSO and Ridge regarding 
-    cross-validation and fitting. Before using early stopping for the neural nets, 
-    it takes more than 10 minutes per one cross-validation and it causes 
-    over-fitting.
+### Performance Comparison
+
+LASSO performs the best, and Ridge the worst. 
+|   | DL  | LASSO  | Ridge  | Elastic Net  |
+|:-:|:-:|:-:|:-:|:-:|
+| Train MAE | 110.6  | 111.7  | 119.2  | 112.2  |   |
+| Test MAE  | 260.9  | 215.8  | 279.9  | 217.9  |
+
+|   | DL  | LASSO  | Ridge  | Elastic Net  |
+|:-:|:-:|:-:|:-:|:-:|
+| Residual | ![](dlr.jpeg)  | ![](lassor.jpeg)  | ![](ridger.jpeg)  | ![](elasticr.jpeg)  |
+| Time Series  | ![](dlt.jpeg) | ![](lassot.jpeg) | ![](ridget.jpeg) | ![](elastict.jpeg) |
 
 ## Conclusion
 
-For predicting the daily open price of bitcoin, LASSO regression is the best 
-in terms of mean absolute error and time. However, all the three models are 
-quite good to predict the price of bitcoin because the bitcoin price is over 
-6,000 dollar and the mean absolute error is around 25 dollars at average. 
-In addition, they are not over-fitted.
+For predicting the daily open price of bitcoin, LASSO regression is the best in terms of mean absolute error. However, all the models are quite good to predict the price of bitcoin because the bitcoin price is over 6,000 dollar and the mean absolute error is around 250 dollars at average.
 
-The neural nets show the most variability on accuracy, which is 
-the mean absolute error, and spend the most time.
-
-Interestingly, using the average of the number of epochs and lambda 
-reduces the variability of accuracy and spent time compared to using 
-the number of epochs and lambda at the least mean absolute error 
-from 30-times iterated cross-validation.
+DL the most spends time to optimize since that has much more hyperparameters than other models. The next step would be to apply L2 regularization because LASSO fits better this Bitcoin dataset.
