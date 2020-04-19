@@ -86,7 +86,7 @@ As DL get deeper, cross-validation mean absolute error becomes better and more s
 
 ### Optimizer - rmsprop, one of the famous variants of stochastic gradient descent which uses different learning rates by units.
 
-### item Batch size - 8 
+### Batch size - 8 
     
 Given the condition of early stopping, 10 batch sizes(1, 2, 4, 8, 16, 32, 64, 128, 256, and 512) are compared in terms of cross-validation mean absolute error. Under the same layers in (a), there is no huge difference between batch sizes. However, the batch size $= 8$ is the best and selected as the optimal batch size. 
     
