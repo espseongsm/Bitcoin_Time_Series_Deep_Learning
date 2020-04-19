@@ -53,9 +53,23 @@ Early stopping only controls the number of epoch to feed. Given the condition of
 
 ## Architectures of Deep Learning
 
+### Activation function
+
+rectified linear unit, one of the best activation functions as default.
+
+### Loss function
+
+mean square error
+
+### Optimizer
+
+rmsprop, one of the famous variants of stochastic gradient descent which uses different learning rates by units.
+
+
 ### Layer
 
 It has five layers which are composed of one input layer, three hidden layers, one output layer as below. The output layer has no activation for regression analysis. Cross-validation is used to optimize the structure of three hidden layers below.
+
 ```R
 build_DL_model = function() {
         model = keras_model_sequential() %>%
@@ -80,11 +94,6 @@ In order to decide the number of nodes in a hidden layer, cross-validation with 
         
 As DL get deeper, cross-validation mean absolute error becomes better and more stables. For example, the third hidden layer with 2 nodes has the almost same cross-validation mean absolute error as with 256 nodes. However, when I try the forth hidden layer, it becomes worse. The cross-validation mean absolute error of the fourth hidden layer tends to be higher than that of the second hidden layer. So, the fourth hidden layer is taken out.
         
-### Activation function - rectified linear unit, one of the best activation functions as default.
-
-### Loss function -  mean square error
-
-### Optimizer - rmsprop, one of the famous variants of stochastic gradient descent which uses different learning rates by units.
 
 ### Batch size - 8 
     
