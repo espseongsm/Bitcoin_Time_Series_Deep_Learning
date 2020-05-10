@@ -2,6 +2,8 @@
 - Soonmo Seong
 - March 29th, 2020
 
+This analysis is done under Professor Kamiar's supervising and teaching(Baruch College, CUNY). Thanks Professor!
+
 ## Bitcoin Price History Data
 
 This [bitcoin daily history data](https://drive.google.com/file/d/1WdAlHmxsBfsYRWyFZvuKE0tAPFulLhNe/view?usp=sharing) 
