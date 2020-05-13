@@ -123,6 +123,6 @@ LASSO performs the best, and Ridge the worst.
 
 ## Conclusion
 
-For predicting the daily open price of bitcoin, LASSO regression is the best in terms of mean absolute error(215.8 dollars). However, all the models are quite good to predict the price of bitcoin because the bitcoin price is over 6,000 dollar and the mean absolute error is around 244 dollars at average.
+For predicting the daily open price of bitcoin, LASSO regression is the best in terms of mean absolute error(215.8 dollars). However, all the models are quite good to predict the price of bitcoin because the bitcoin price is over 7,000 dollar and the mean absolute error is around 244 dollars at average.
 
 DL the most spends time to optimize since that has much more hyperparameters than other models. The next step would be to apply L2 regularization because LASSO fits better this Bitcoin dataset.
